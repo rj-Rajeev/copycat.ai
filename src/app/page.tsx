@@ -1,103 +1,116 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from "react";
+import {
+  Plus,
+  Moon,
+  Sun,
+  Bot,
+} from "lucide-react";
+import { generateObjectId } from "@/utils/generateObjectId";
+import { useRouter } from "next/navigation";
+
+const CopyCatLandingPage: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    let storedId = localStorage.getItem("copycat_user_id");
+    if (!storedId) {
+      storedId = generateObjectId();
+      localStorage.setItem("copycat_user_id", storedId);
+    }
+    setUserId(storedId);
+  }, []);
+
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem("darkMode") === "true";
+    setIsDarkMode(savedDarkMode);
+  }, []);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("darkMode", isDarkMode.toString());
+  }, [isDarkMode]);
+
+  const startNewChat = async () => {
+    try {
+      const res = await fetch("/api/chat/new", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          message: {
+            role: "assistant",
+            content: "Hi, how can I help you?",
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        router.push(`/chat/${data.chat._id}`);
+      }
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div
+      className={`min-h-screen transition-colors duration-200 ${
+        isDarkMode ? "dark" : ""
+      }`}
+    >
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 flex flex-col">
+        
+        {/* Header */}
+        <header className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+            CopyCat
+          </h1>
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
+          >
+            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+        </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col items-center justify-center text-center px-6">
+          {/* Assistant Avatar */}
+          <div className="w-28 h-28 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg mb-6">
+            <Bot className="w-14 h-14 text-white" />
+          </div>
+
+          {/* Assistant Greeting */}
+          <h2 className="text-3xl font-bold mb-2">Hi, how can I help you?</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-lg">
+            I’m CopyCat, your AI assistant for coding, design, and more.
+          </p>
+
+          {/* New Chat Button */}
+          <button
+            onClick={startNewChat}
+            className="px-6 py-3 flex items-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold text-lg shadow-lg hover:scale-105 transition-transform"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            <Plus className="w-5 h-5" />
+            Start New Chat
+          </button>
+
+          {/* Decorative Wave */}
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-purple-600/10 to-transparent pointer-events-none"></div>
+        </main>
+      </div>
     </div>
   );
-}
+};
+
+export default CopyCatLandingPage;
