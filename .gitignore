@@ -19,7 +19,7 @@
 
 # production
 /build
-
+public/cloned-sites
 # misc
 .DS_Store
 *.pem
