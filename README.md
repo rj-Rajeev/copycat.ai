@@ -1,4 +1,3 @@
-````markdown
 # 🐱 CopyCat – AI-Powered Web Cloner & Prototyping Tool  
 
 <p align="center">
