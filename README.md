@@ -71,6 +71,13 @@ cd copycat
 # Install dependencies
 npm install
 
+# add .env
+
+MONGODB_URI=mongodb://localhost:27017/copycat
+BASE_URL=xxxxxxxxxxxxxxxxxxxxx
+MODEL_NAME=gpt-4o-mini
+OPENAI_API_KEY= xxxxxxxxxxxxxxxxx
+
 # Start the development server
 npm run dev
 ````
